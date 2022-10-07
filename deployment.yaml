@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodeapp-deployment
+  labels:
+     app: nodeapp
+     type: front-end
+spec:
+  template:
+     metadata:
+       name: nodejsapp-pod
+       labels: 
+         app: nodejsapp
+         type: front-end
+     spec:
+         containers:
+           - name: nodejsapp
+             image: "shanmugha13/nodeapp"
+             imagePullPolicy: Always
+  replicas: 1
+  selector:
+    matchLabels:
+      type: front-end
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-service
+spec:
+  selector:
+    app: nodejsapp
+  type: LoadBalancer  
+  ports:
+    - protocol: TCP
+      targetPort: 8080
+      port: 80
+      nodePort: 30000
