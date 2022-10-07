@@ -1,0 +1,33 @@
+pipeline{
+
+        agent any
+		environment {
+				DOCKERHUB_CREDENTIALS=credentials('dockerhub-cred')
+		}
+                stages {
+					stage('Build Docker image')
+					{
+							steps{
+									sh 'docker build -t shanmugha13/nodeapp /opt/project/k8-pipeline/'               
+							}
+					}
+					stage('check-in DockerHub')
+					{
+							steps{
+									sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'                  
+							}
+					}
+					stage('Push image into DockerHub')
+					{
+							steps{
+									sh 'docker push shanmugha13/nodeapp'                
+							}
+					}
+
+        }
+		post {
+				always {
+						sh 'docker logout'
+				}
+        }
+}

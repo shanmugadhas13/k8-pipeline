@@ -1,0 +1,33 @@
+pipeline{
+
+        agent any
+                stages {
+					stage('Get k8 deployment file')
+					{
+							steps{
+									sshagent(['ec2usr'])
+									{
+											sh 'scp -pr -o StrictHostKeyChecking=no /opt/project/k8-pipeline/deployment.yaml ec2-user@172.31.21.174:/opt/devproj/'
+									}
+							}
+					}
+					stage('Spin k8 pods')
+					{
+							steps{
+									sshagent(['ec2usr'])
+									{
+											sh "ssh ec2-user@172.31.21.174 'sudo kubectl apply -f /opt/devproj/deployment.yaml'"
+									}
+							}
+					}
+					stage('Port forwarding ')
+					{
+							steps{
+									sshagent(['ec2usr'])
+									{
+											sh "ssh ec2-user@172.31.21.174 'sudo sh /opt/devproj/portfwd.sh & '"
+									}
+							}
+					}
+				}
+		}
